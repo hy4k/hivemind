@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentForge - Multi-Agent Control Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF1A1A;
+            --secondary: #0F172A;
+            --accent: #3B82F6;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --bg: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --border: #E2E8F0;
+            --text: #1E293B;
+            --text-light: #64748B;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: var(--secondary);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            color: #94A3B8;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: white;
+        }
+
+        /* Main */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .stat-card h3 {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .stat-card.primary .value {
+            color: var(--primary);
+        }
+
+        .stat-card.success .value {
+            color: var(--success);
+        }
+
+        /* Agent Grid */
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .agent-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .agent-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .agent-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        }
+
+        .agent-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .agent-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .agent-avatar.architect { background: linear-gradient(135deg, #8B5CF6, #6366F1); }
+        .agent-avatar.oracle { background: linear-gradient(135deg, #06B6D4, #0EA5E9); }
+        .agent-avatar.builder { background: linear-gradient(135deg, #10B981, #34D399); }
+        .agent-avatar.designer { background: linear-gradient(135deg, #F59E0B, #FBBF24); }
+        .agent-avatar.sage { background: linear-gradient(135deg, #EC4899, #F472B6); }
+        .agent-avatar.phantom { background: linear-gradient(135deg, #6B7280, #9CA3AF); }
+
+        .agent-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .agent-role {
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+
+        .agent-personality {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .agent-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            background: #DCFCE7;
+            color: #166534;
+        }
+
+        .agent-status::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #166534;
+        }
+
+        /* Task Form */
+        .task-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        .task-form {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .task-input {
+            flex: 1;
+            min-width: 300px;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .task-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .task-select {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: white;
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #DC2626;
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #334155;
+        }
+
+        /* Tasks List */
+        .tasks-list {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .task-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-info h4 {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .task-info span {
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+
+        .task-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .task-status.pending {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        .task-status.completed {
+            background: #DCFCE7;
+            color: #166534;
+        }
+
+        .task-status.failed {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        /* Hive Mind Toggle */
+        .hive-mind-section {
+            background: linear-gradient(135deg, #1E1B4B, #312E81);
+            border-radius: 12px;
+            padding: 1.5rem;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .hive-mind-section h2 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .hive-mind-section p {
+            color: #A5B4FC;
+            margin-bottom: 1rem;
+        }
+
+        .hive-toggle {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .toggle {
+            width: 48px;
+            height: 24px;
+            background: #4B5563;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .toggle.active {
+            background: var(--primary);
+        }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s;
+        }
+
+        .toggle.active::after {
+            transform: translateX(24px);
+        }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-light);
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            ⚡ Agent<span>Forge</span>
+        </div>
+        <nav class="nav-links">
+            <a href="#agents" class="active">Agents</a>
+            <a href="#tasks">Tasks</a>
+            <a href="#hive-mind">Hive Mind</a>
+            <a href="#stats">Stats</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- Stats -->
+        <div class="stats-grid" id="stats">
+            <div class="stat-card primary">
+                <h3>Total Agents</h3>
+                <div class="value" id="total-agents">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Tasks Pending</h3>
+                <div class="value" id="pending-tasks">0</div>
+            </div>
+            <div class="stat-card success">
+                <h3>Tasks Completed</h3>
+                <div class="value" id="completed-tasks">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Queue Size</h3>
+                <div class="value" id="queue-size">0</div>
+            </div>
+        </div>
+
+        <!-- Hive Mind -->
+        <div class="hive-mind-section" id="hive-mind">
+            <h2>🧠 Hive Mind Mode</h2>
+            <p>When activated, all agents share consciousness and collaborate as one.</p>
+            <div class="hive-toggle">
+                <div class="toggle" id="hive-toggle" onclick="toggleHiveMind()"></div>
+                <span id="hive-status">Inactive</span>
+            </div>
+        </div>
+
+        <!-- Task Form -->
+        <div class="task-section" id="tasks">
+            <h2 class="section-title">🚀 Assign Task</h2>
+            <form class="task-form" onsubmit="submitTask(event)">
+                <input type="text" class="task-input" id="task-description" placeholder="What do you want to accomplish?" required>
+                <select class="task-select" id="agent-type">
+                    <option value="">Auto-assign (Smart)</option>
+                    <option value="architect">📋 The Planner</option>
+                    <option value="oracle">🔍 The Oracle</option>
+                    <option value="builder">💻 The Architect</option>
+                    <option value="designer">🎨 The Artist</option>
+                    <option value="sage">📊 The Sage</option>
+                    <option value="phantom">🚀 The Phantom</option>
+                </select>
+                <button type="submit" class="btn btn-primary">Execute</button>
+            </form>
+        </div>
+
+        <!-- Agents Grid -->
+        <h2 class="section-title">🤖 Your Agents</h2>
+        <div class="agent-grid" id="agents-grid">
+            <!-- Agents loaded via JS -->
+        </div>
+
+        <!-- Recent Tasks -->
+        <h2 class="section-title">📋 Recent Tasks</h2>
+        <div class="tasks-list" id="tasks-list">
+            <!-- Tasks loaded via JS -->
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.port === '5173' 
+            ? 'http://localhost:8000' 
+            : '';
+
+        // Load data
+        async function loadData() {
+            await Promise.all([
+                loadAgents(),
+                loadTasks(),
+                loadStats()
+            ]);
+        }
+
+        async function loadAgents() {
+            try {
+                const res = await fetch(`${API_BASE}/agents`);
+                const agents = await res.json();
+                
+                document.getElementById('total-agents').textContent = agents.length;
+                
+                const grid = document.getElementById('agents-grid');
+                grid.innerHTML = agents.map(agent => `
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-avatar ${agent.type}">${agent.name.charAt(0)}</div>
+                            <div>
+                                <div class="agent-name">${agent.name}</div>
+                                <div class="agent-role">${agent.role}</div>
+                            </div>
+                        </div>
+                        <div class="agent-personality">
+                            ${getPersonality(agent.type)}
+                        </div>
+                        <span class="agent-status">${agent.status}</span>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error('Failed to load agents:', e);
+            }
+        }
+
+        function getPersonality(type) {
+            const personalities = {
+                'architect': 'Calculated, methodical, always sees the big picture.',
+                'oracle': 'Wise, thorough, finds needle in haystacks.',
+                'builder': 'Precise, elegant, writes poetry in code.',
+                'designer': 'Creative, bold, makes the mundane magical.',
+                'sage': 'Deep thinker, finds patterns in chaos.',
+                'phantom': 'Silent operator, gets things done without fanfare.'
+            };
+            return personalities[type] || 'Specialized AI agent.';
+        }
+
+        async function loadTasks() {
+            try {
+                const res = await fetch(`${API_BASE}/tasks`);
+                const tasks = await res.json();
+                
+                const pending = tasks.filter(t => t.status === 'pending').length;
+                const completed = tasks.filter(t => t.status === 'completed').length;
+                
+                document.getElementById('pending-tasks').textContent = pending;
+                document.getElementById('completed-tasks').textContent = completed;
+                
+                const list = document.getElementById('tasks-list');
+                list.innerHTML = tasks.slice(0, 10).map(task => `
+                    <div class="task-item">
+                        <div class="task-info">
+                            <h4>${task.description}</h4>
+                            <span>ID: ${task.task_id}</span>
+                        </div>
+                        <span class="task-status ${task.status}">${task.status}</span>
+                    </div>
+                `).join('') || '<div class="task-item"><span>No tasks yet</span></div>';
+            } catch (e) {
+                console.error('Failed to load tasks:', e);
+            }
+        }
+
+        async function loadStats() {
+            try {
+                const res = await fetch(`${API_BASE}/stats`);
+                const stats = await res.json();
+                document.getElementById('queue-size').textContent = stats.queue_size;
+            } catch (e) {
+                console.error('Failed to load stats:', e);
+            }
+        }
+
+        async function submitTask(e) {
+            e.preventDefault();
+            
+            const description = document.getElementById('task-description').value;
+            const agentType = document.getElementById('agent-type').value || null;
+            
+            try {
+                const res = await fetch(`${API_BASE}/tasks`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ description, agent_type: agentType })
+                });
+                
+                if (res.ok) {
+                    document.getElementById('task-description').value = '';
+                    loadData();
+                }
+            } catch (e) {
+                console.error('Failed to submit task:', e);
+                alert('Failed to submit task. Is the server running?');
+            }
+        }
+
+        async function toggleHiveMind() {
+            const toggle = document.getElementById('hive-toggle');
+            const status = document.getElementById('hive-status');
+            const isActive = toggle.classList.contains('active');
+            
+            try {
+                const endpoint = isActive ? '/hive-mind/deactivate' : '/hive-mind/activate';
+                await fetch(`${API_BASE}${endpoint}`, { method: 'POST' });
+                
+                toggle.classList.toggle('active');
+                status.textContent = isActive ? 'Inactive' : 'Active';
+            } catch (e) {
+                console.error('Failed to toggle hive mind:', e);
+            }
+        }
+
+        // Initial load
+        loadData();
+        
+        // Auto-refresh
+        setInterval(loadData, 5000);
+    </script>
+</body>
+</html>
