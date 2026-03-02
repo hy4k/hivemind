@@ -13,7 +13,7 @@ import asyncio
 import uvicorn
 
 from core.llm import llm_manager, OllamaProvider
-from core.orchestrator import Orchestrator, OllamaProvider
+from core.orchestrator import Orchestrator
 from core.base import AgentType, AgentConfig
 from agents.architect import Architect
 from agents.oracle import Oracle
